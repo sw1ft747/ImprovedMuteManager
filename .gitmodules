@@ -1,0 +1,6 @@
+[submodule "mm_injector"]
+	path = mm_injector
+	url = https://github.com/r47t/mm_injector.git
+[submodule "libdasm"]
+	path = advanced_mute_system/libdasm
+	url = https://github.com/jtpereyda/libdasm.git

@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="modules\client.cpp">
+      <Filter>Advanced Mute System\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\engine.cpp">
+      <Filter>Advanced Mute System\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\signature_scanner.cpp">
+      <Filter>Advanced Mute System\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\trampoline_hook.cpp">
+      <Filter>Advanced Mute System\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="libdasm\libdasm.c">
+      <Filter>Advanced Mute System\libdasm</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Advanced Mute System</Filter>
+    </ClCompile>
+    <ClCompile Include="patterns.cpp">
+      <Filter>Advanced Mute System</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="modules\client.h">
+      <Filter>Advanced Mute System\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\engine.h">
+      <Filter>Advanced Mute System\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\trampoline_hook.h">
+      <Filter>Advanced Mute System\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\signature_scanner.h">
+      <Filter>Advanced Mute System\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\patterns_base.h">
+      <Filter>Advanced Mute System\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\hash_table.h">
+      <Filter>Advanced Mute System\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="libdasm\libdasm.h">
+      <Filter>Advanced Mute System\libdasm</Filter>
+    </ClInclude>
+    <ClInclude Include="libdasm\opcode_tables.h">
+      <Filter>Advanced Mute System\libdasm</Filter>
+    </ClInclude>
+    <ClInclude Include="patterns.h">
+      <Filter>Advanced Mute System</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk.h">
+      <Filter>Advanced Mute System</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Advanced Mute System">
+      <UniqueIdentifier>{e35946e7-9b48-4b1d-9a29-07b6ef36b4fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Advanced Mute System\Modules">
+      <UniqueIdentifier>{621ed60d-45b8-4e43-97b2-c2c853550a48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Advanced Mute System\Utils">
+      <UniqueIdentifier>{007458d4-1bb7-42c7-88a4-5b79e25861c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Advanced Mute System\libdasm">
+      <UniqueIdentifier>{689ec9e4-fa8b-4a03-bd4e-a5a4b8f49587}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

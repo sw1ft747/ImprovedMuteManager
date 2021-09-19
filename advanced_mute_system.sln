@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "advanced_mute_system", "advanced_mute_system\advanced_mute_system.vcxproj", "{BCC3C605-FE38-4430-A744-D82AF94E1176}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mm_injector", "mm_injector\mm_injector\mm_injector.vcxproj", "{CF9F13A3-FFF4-4203-A25E-9C59A91CFCB5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BCC3C605-FE38-4430-A744-D82AF94E1176}.Debug|x86.ActiveCfg = Release|Win32
+		{BCC3C605-FE38-4430-A744-D82AF94E1176}.Release|x86.ActiveCfg = Release|Win32
+		{BCC3C605-FE38-4430-A744-D82AF94E1176}.Release|x86.Build.0 = Release|Win32
+		{CF9F13A3-FFF4-4203-A25E-9C59A91CFCB5}.Debug|x86.ActiveCfg = Release|Win32
+		{CF9F13A3-FFF4-4203-A25E-9C59A91CFCB5}.Release|x86.ActiveCfg = Release|Win32
+		{CF9F13A3-FFF4-4203-A25E-9C59A91CFCB5}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3263E03A-2A61-483C-B8C3-DC360B81DE34}
+	EndGlobalSection
+EndGlobal
