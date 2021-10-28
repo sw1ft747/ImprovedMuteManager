@@ -522,6 +522,7 @@ void __fastcall SetPlayerBlockedState_Hooked(void *thisptr, int edx, int nPlayer
 // Send to server the mask of muted players that we don't want to hear
 void __fastcall UpdateServerState_Hooked(void *thisptr, int edx, bool bForce)
 {
+	static float flForceBanMaskTime = 0.0f;
 	static char command_buffer[64];
 
 	char const *pLevelName = g_pEngineFuncs->pfnGetLevelName();
@@ -568,7 +569,7 @@ void __fastcall UpdateServerState_Hooked(void *thisptr, int edx, bool bForce)
 			banMask |= 1 << i; // one bit, one client
 	}
 
-	if (g_BanMask != banMask)
+	if (g_BanMask != banMask || (g_pEngineFuncs->GetClientTime() - flForceBanMaskTime >= 5.0f))
 	{
 		sprintf_s(command_buffer, sizeof(command_buffer), "vban %X", banMask); // vban [ban_mask]
 
@@ -583,7 +584,7 @@ void __fastcall UpdateServerState_Hooked(void *thisptr, int edx, bool bForce)
 		g_pEngineFuncs->Con_Printf("CVoiceStatus::UpdateServerState: no change\n");
 	}
 
-	*m_LastUpdateServerState = g_pEngineFuncs->GetClientTime();
+	*m_LastUpdateServerState = flForceBanMaskTime = g_pEngineFuncs->GetClientTime();
 
 	//UpdateServerState_Original(thisptr, bForce);
 }
