@@ -145,9 +145,12 @@ bool CHashTable64<tableSize, hashData>::RemoveEntry(uint64_t key, hashData value
 				else
 					m_table[index] = entry->next;
 			}
-			else if (!prev)
+			else
 			{
-				m_table[index] = NULL;
+				if (prev)
+					prev->next = NULL;
+				else
+					m_table[index] = NULL;
 			}
 
 			delete entry;

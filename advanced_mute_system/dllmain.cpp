@@ -13,7 +13,7 @@
 #include "utils/signature_scanner.h"
 #include "libdasm/libdasm.h"
 
-#define MOD_VERSION "1.0.1"
+#define MOD_VERSION "1.0.2"
 
 // Show console for debugging or something
 #define SHOW_CONSOLE 0
