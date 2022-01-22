@@ -28,7 +28,7 @@
 #define AMS_HEADER ( 0x2F77 )
 
 // Hash table size
-#define HASH_TABLE_SIZE ( 256 )
+#define HASH_TABLE_SIZE ( 255 )
 
 // Console stuff
 #define REGISTER_COMMAND(command, func) g_pEngineFuncs->pfnAddCommand(command, func)
