@@ -123,7 +123,7 @@ const char *CMuteManagerPlugin::GetAuthor(void)
 
 const char *CMuteManagerPlugin::GetVersion(void)
 {
-	return "2.0.0";
+	return "2.0.1";
 }
 
 const char *CMuteManagerPlugin::GetDescription(void)
