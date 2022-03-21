@@ -1,6 +1,7 @@
 #include <IClientPlugin.h>
 #include <interface.h>
 
+#include <base_feature.h>
 #include <convar.h>
 #include <dbg.h>
 
@@ -57,12 +58,14 @@ api_version_s CMuteManagerPlugin::GetAPIVersion()
 
 bool CMuteManagerPlugin::Load(CreateInterfaceFn pfnSvenModFactory, ISvenModAPI *pSvenModAPI, IPluginHelpers *pPluginHelpers)
 {
-	bool success = LoadMuteManager();
+	if ( !LoadFeatures() )
+	{
+		Warning("[Improved Mute Manager] Failed to initialize\n");
+		return false;
+	}
 
-	if (success)
-		ConColorMsg({ 40, 255, 40, 255 }, "[Improved Mute Manager] Successfully loaded\n");
-
-	return success;
+	ConColorMsg({ 40, 255, 40, 255 }, "[Improved Mute Manager] Successfully loaded\n");
+	return true;
 }
 
 void CMuteManagerPlugin::PostLoad(bool bGlobalLoad)
@@ -73,22 +76,24 @@ void CMuteManagerPlugin::PostLoad(bool bGlobalLoad)
 	else
 	{
 	}
+
+	PostLoadFeatures();
 }
 
 void CMuteManagerPlugin::Unload(void)
 {
-	UnloadMuteManager();
+	UnloadFeatures();
 }
 
 bool CMuteManagerPlugin::Pause(void)
 {
-	PauseMuteManager();
+	PauseFeatures();
 	return true;
 }
 
 void CMuteManagerPlugin::Unpause(void)
 {
-	UnpauseMuteManager();
+	UnpauseFeatures();
 }
 
 void CMuteManagerPlugin::GameFrame(client_state_t state, double frametime, bool bPostRunCmd)
@@ -123,7 +128,7 @@ const char *CMuteManagerPlugin::GetAuthor(void)
 
 const char *CMuteManagerPlugin::GetVersion(void)
 {
-	return "2.0.1";
+	return "2.0.2";
 }
 
 const char *CMuteManagerPlugin::GetDescription(void)

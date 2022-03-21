@@ -74,16 +74,7 @@ cvar_t *voice_modenable = NULL;
 ConVar imm_mute_all_communications("imm_mute_all_communications", "0", FCVAR_CLIENTDLL, "If you muted a player, all (voice and chat) communications of this player will be muted");
 ConVar imm_autosave_to_file("imm_autosave_to_file", "1", FCVAR_CLIENTDLL, "Automatically save muted players to the file \"muted_players.bin\"");
 
-DetourHandle_t hCHudBaseTextBlock__Print = 0;
-DetourHandle_t hCVoiceBanMgr__SetPlayerBan = 0;
-DetourHandle_t hCVoiceBanMgr__InternalFindPlayerSquelch = 0;
-DetourHandle_t hCVoiceStatus__IsPlayerBlocked = 0;
-DetourHandle_t hCVoiceStatus__SetPlayerBlockedState = 0;
-DetourHandle_t hCVoiceStatus__UpdateServerState = 0;
-DetourHandle_t hHACK_GetPlayerUniqueID = 0;
-
 UserMsgHookFn ORIG_UserMsgHook_SayText = NULL;
-DetourHandle_t hUserMsgHook_SayText = 0;
 
 //-----------------------------------------------------------------------------
 // Purpose: load muted players in hash table from file muted_players.bin
@@ -717,63 +708,95 @@ int UserMsgHook_SayText(const char *pszName, int iSize, void *pBuffer)
 // Control class
 //-----------------------------------------------------------------------------
 
-bool LoadMuteManager()
+class CMuteManager : public CBaseFeature
+{
+public:
+	virtual bool Load();
+
+	virtual void PostLoad();
+
+	virtual void Unload();
+
+	virtual void Pause();
+	virtual void Unpause();
+
+private:
+	//void *m_pfnCHudBaseTextBlock__Print;
+	void *m_pfnCVoiceBanMgr__SetPlayerBan;
+	void *m_pfnCVoiceBanMgr__InternalFindPlayerSquelch;
+	void *m_pfnCVoiceStatus__IsPlayerBlocked;
+	void *m_pfnCVoiceStatus__SetPlayerBlockedState;
+	void *m_pfnCVoiceStatus__UpdateServerState;
+	void *m_pfnHACK_GetPlayerUniqueID;
+
+	//DetourHandle_t m_hCHudBaseTextBlock__Print;
+	DetourHandle_t m_hCVoiceBanMgr__SetPlayerBan;
+	DetourHandle_t m_hCVoiceBanMgr__InternalFindPlayerSquelch;
+	DetourHandle_t m_hCVoiceStatus__IsPlayerBlocked;
+	DetourHandle_t m_hCVoiceStatus__SetPlayerBlockedState;
+	DetourHandle_t m_hCVoiceStatus__UpdateServerState;
+	DetourHandle_t m_hHACK_GetPlayerUniqueID;
+
+	DetourHandle_t m_hUserMsgHook_SayText;
+};
+
+bool CMuteManager::Load()
 {
 	// Find signatures
 
 	/*
-	void *pCHudBaseTextBlock__Print = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CHudBaseTextBlock__Print );
+	m_pfnCHudBaseTextBlock__Print = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CHudBaseTextBlock__Print );
 
-	if ( !pCHudBaseTextBlock__Print )
+	if ( !m_pfnCHudBaseTextBlock__Print )
 	{
 		Warning("[Improved Mute Manager] Can't find function CHudBaseTextBlock::Print\n");
 		return false;
 	}
 	*/
 
-	void *pCVoiceBanMgr__SetPlayerBan = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceBanMgr__SetPlayerBan );
+	m_pfnCVoiceBanMgr__SetPlayerBan = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceBanMgr__SetPlayerBan );
 
-	if ( !pCVoiceBanMgr__SetPlayerBan )
+	if ( !m_pfnCVoiceBanMgr__SetPlayerBan )
 	{
 		Warning("[Improved Mute Manager] Can't find function CVoiceBanMgr::SetPlayerBan\n");
 		return false;
 	}
 
-	void *pCVoiceBanMgr__InternalFindPlayerSquelch = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceBanMgr__InternalFindPlayerSquelch );
+	m_pfnCVoiceBanMgr__InternalFindPlayerSquelch = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceBanMgr__InternalFindPlayerSquelch );
 
-	if ( !pCVoiceBanMgr__InternalFindPlayerSquelch )
+	if ( !m_pfnCVoiceBanMgr__InternalFindPlayerSquelch )
 	{
 		Warning("[Improved Mute Manager] Can't find function CVoiceBanMgr::InternalFindPlayerSquelch\n");
 		return false;
 	}
 
-	void *pCVoiceStatus__IsPlayerBlocked = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceStatus__IsPlayerBlocked );
+	m_pfnCVoiceStatus__IsPlayerBlocked = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceStatus__IsPlayerBlocked );
 
-	if ( !pCVoiceStatus__IsPlayerBlocked )
+	if ( !m_pfnCVoiceStatus__IsPlayerBlocked )
 	{
 		Warning("[Improved Mute Manager] Can't find function CVoiceStatus::IsPlayerBlocked\n");
 		return false;
 	}
 
-	void *pCVoiceStatus__SetPlayerBlockedState = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceStatus__SetPlayerBlockedState );
+	m_pfnCVoiceStatus__SetPlayerBlockedState = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceStatus__SetPlayerBlockedState );
 
-	if ( !pCVoiceStatus__SetPlayerBlockedState )
+	if ( !m_pfnCVoiceStatus__SetPlayerBlockedState )
 	{
 		Warning("[Improved Mute Manager] Can't find function CVoiceStatus::SetPlayerBlockedState\n");
 		return false;
 	}
 
-	void *pCVoiceStatus__UpdateServerState = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceStatus__UpdateServerState );
+	m_pfnCVoiceStatus__UpdateServerState = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceStatus__UpdateServerState );
 
-	if ( !pCVoiceStatus__UpdateServerState )
+	if ( !m_pfnCVoiceStatus__UpdateServerState )
 	{
 		Warning("[Improved Mute Manager] Can't find function CVoiceStatus::UpdateServerState\n");
 		return false;
 	}
 
-	void *pHACK_GetPlayerUniqueID = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, HACK_GetPlayerUniqueID );
+	m_pfnHACK_GetPlayerUniqueID = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, HACK_GetPlayerUniqueID );
 
-	if ( !pHACK_GetPlayerUniqueID )
+	if ( !m_pfnHACK_GetPlayerUniqueID )
 	{
 		Warning("[Improved Mute Manager] Can't find function HACK_GetPlayerUniqueID\n");
 		return false;
@@ -797,70 +820,74 @@ bool LoadMuteManager()
 		return false;
 	}
 
-	LoadMutedPlayers();
-	ConVar_Register();
-
-	// Hook functions
-
-	//hCHudBaseTextBlock__Print = DetoursAPI()->DetourFunction( pCHudBaseTextBlock__Print, HOOKED_CHudBaseTextBlock__Print, GET_FUNC_PTR(ORIG_CHudBaseTextBlock__Print) );
-	hCVoiceBanMgr__SetPlayerBan = DetoursAPI()->DetourFunction( pCVoiceBanMgr__SetPlayerBan, HOOKED_CVoiceBanMgr__SetPlayerBan, GET_FUNC_PTR(ORIG_CVoiceBanMgr__SetPlayerBan) );
-	hCVoiceBanMgr__InternalFindPlayerSquelch = DetoursAPI()->DetourFunction( pCVoiceBanMgr__InternalFindPlayerSquelch, HOOKED_CVoiceBanMgr__InternalFindPlayerSquelch, GET_FUNC_PTR(ORIG_CVoiceBanMgr__InternalFindPlayerSquelch) );
-	hCVoiceStatus__IsPlayerBlocked = DetoursAPI()->DetourFunction( pCVoiceStatus__IsPlayerBlocked, HOOKED_CVoiceStatus__IsPlayerBlocked, GET_FUNC_PTR(ORIG_CVoiceStatus__IsPlayerBlocked) );
-	hCVoiceStatus__SetPlayerBlockedState = DetoursAPI()->DetourFunction( pCVoiceStatus__SetPlayerBlockedState, HOOKED_CVoiceStatus__SetPlayerBlockedState, GET_FUNC_PTR(ORIG_CVoiceStatus__SetPlayerBlockedState) );
-	hCVoiceStatus__UpdateServerState = DetoursAPI()->DetourFunction( pCVoiceStatus__UpdateServerState, HOOKED_CVoiceStatus__UpdateServerState, GET_FUNC_PTR(ORIG_CVoiceStatus__UpdateServerState) );
-	hHACK_GetPlayerUniqueID = DetoursAPI()->DetourFunction( pHACK_GetPlayerUniqueID, HOOKED_HACK_GetPlayerUniqueID, GET_FUNC_PTR(ORIG_HACK_GetPlayerUniqueID) );
-
-	hUserMsgHook_SayText = Hooks()->HookUserMessage( "SayText", UserMsgHook_SayText, &ORIG_UserMsgHook_SayText );
-
 	return true;
 }
 
-void UnloadMuteManager()
+void CMuteManager::PostLoad()
+{
+	LoadMutedPlayers();
+	ConVar_Register();
+
+	//m_hCHudBaseTextBlock__Print = DetoursAPI()->DetourFunction( m_pfnCHudBaseTextBlock__Print, HOOKED_CHudBaseTextBlock__Print, GET_FUNC_PTR(ORIG_CHudBaseTextBlock__Print) );
+
+	m_hCVoiceBanMgr__SetPlayerBan = DetoursAPI()->DetourFunction( m_pfnCVoiceBanMgr__SetPlayerBan, HOOKED_CVoiceBanMgr__SetPlayerBan, GET_FUNC_PTR(ORIG_CVoiceBanMgr__SetPlayerBan) );
+	m_hCVoiceBanMgr__InternalFindPlayerSquelch = DetoursAPI()->DetourFunction(m_pfnCVoiceBanMgr__InternalFindPlayerSquelch, HOOKED_CVoiceBanMgr__InternalFindPlayerSquelch, GET_FUNC_PTR(ORIG_CVoiceBanMgr__InternalFindPlayerSquelch) );
+	m_hCVoiceStatus__IsPlayerBlocked = DetoursAPI()->DetourFunction(m_pfnCVoiceStatus__IsPlayerBlocked, HOOKED_CVoiceStatus__IsPlayerBlocked, GET_FUNC_PTR(ORIG_CVoiceStatus__IsPlayerBlocked) );
+	m_hCVoiceStatus__SetPlayerBlockedState = DetoursAPI()->DetourFunction(m_pfnCVoiceStatus__SetPlayerBlockedState, HOOKED_CVoiceStatus__SetPlayerBlockedState, GET_FUNC_PTR(ORIG_CVoiceStatus__SetPlayerBlockedState) );
+	m_hCVoiceStatus__UpdateServerState = DetoursAPI()->DetourFunction(m_pfnCVoiceStatus__UpdateServerState, HOOKED_CVoiceStatus__UpdateServerState, GET_FUNC_PTR(ORIG_CVoiceStatus__UpdateServerState) );
+	m_hHACK_GetPlayerUniqueID = DetoursAPI()->DetourFunction(m_pfnHACK_GetPlayerUniqueID, HOOKED_HACK_GetPlayerUniqueID, GET_FUNC_PTR(ORIG_HACK_GetPlayerUniqueID) );
+
+	m_hUserMsgHook_SayText = Hooks()->HookUserMessage( "SayText", UserMsgHook_SayText, &ORIG_UserMsgHook_SayText );
+}
+
+void CMuteManager::Unload()
 {
 	if ( imm_autosave_to_file.GetBool() )
 		SaveMutedPlayers();
 
 	RemoveMutedPlayers();
 
-	//DetoursAPI()->RemoveDetour( hCHudBaseTextBlock__Print );
-	DetoursAPI()->RemoveDetour( hCVoiceBanMgr__SetPlayerBan );
-	DetoursAPI()->RemoveDetour( hCVoiceBanMgr__InternalFindPlayerSquelch );
-	DetoursAPI()->RemoveDetour( hCVoiceStatus__IsPlayerBlocked );
-	DetoursAPI()->RemoveDetour( hCVoiceStatus__SetPlayerBlockedState );
-	DetoursAPI()->RemoveDetour( hCVoiceStatus__UpdateServerState );
-	DetoursAPI()->RemoveDetour( hHACK_GetPlayerUniqueID );
+	//DetoursAPI()->RemoveDetour( m_hCHudBaseTextBlock__Print );
+	DetoursAPI()->RemoveDetour( m_hCVoiceBanMgr__SetPlayerBan );
+	DetoursAPI()->RemoveDetour( m_hCVoiceBanMgr__InternalFindPlayerSquelch );
+	DetoursAPI()->RemoveDetour( m_hCVoiceStatus__IsPlayerBlocked );
+	DetoursAPI()->RemoveDetour( m_hCVoiceStatus__SetPlayerBlockedState );
+	DetoursAPI()->RemoveDetour( m_hCVoiceStatus__UpdateServerState );
+	DetoursAPI()->RemoveDetour( m_hHACK_GetPlayerUniqueID );
 
-	Hooks()->UnhookUserMessage( hUserMsgHook_SayText );
+	Hooks()->UnhookUserMessage( m_hUserMsgHook_SayText );
 
 	ConVar_Unregister();
 }
 
-void PauseMuteManager()
+void CMuteManager::Pause()
 {
 	g_bPaused = true;
 
-	//DetoursAPI()->PauseDetour( hCHudBaseTextBlock__Print );
-	DetoursAPI()->PauseDetour( hCVoiceBanMgr__SetPlayerBan );
-	DetoursAPI()->PauseDetour( hCVoiceBanMgr__InternalFindPlayerSquelch );
-	DetoursAPI()->PauseDetour( hCVoiceStatus__IsPlayerBlocked );
-	DetoursAPI()->PauseDetour( hCVoiceStatus__SetPlayerBlockedState );
-	DetoursAPI()->PauseDetour( hCVoiceStatus__UpdateServerState );
-	DetoursAPI()->PauseDetour( hHACK_GetPlayerUniqueID );
+	//DetoursAPI()->PauseDetour( m_hCHudBaseTextBlock__Print );
+	DetoursAPI()->PauseDetour( m_hCVoiceBanMgr__SetPlayerBan );
+	DetoursAPI()->PauseDetour( m_hCVoiceBanMgr__InternalFindPlayerSquelch );
+	DetoursAPI()->PauseDetour( m_hCVoiceStatus__IsPlayerBlocked );
+	DetoursAPI()->PauseDetour( m_hCVoiceStatus__SetPlayerBlockedState );
+	DetoursAPI()->PauseDetour( m_hCVoiceStatus__UpdateServerState );
+	DetoursAPI()->PauseDetour( m_hHACK_GetPlayerUniqueID );
 
-	Hooks()->UnhookUserMessage( hUserMsgHook_SayText );
+	Hooks()->UnhookUserMessage( m_hUserMsgHook_SayText );
 }
 
-void UnpauseMuteManager()
+void CMuteManager::Unpause()
 {
 	g_bPaused = false;
 
-	//DetoursAPI()->UnpauseDetour( hCHudBaseTextBlock__Print );
-	DetoursAPI()->UnpauseDetour( hCVoiceBanMgr__SetPlayerBan );
-	DetoursAPI()->UnpauseDetour( hCVoiceBanMgr__InternalFindPlayerSquelch );
-	DetoursAPI()->UnpauseDetour( hCVoiceStatus__IsPlayerBlocked );
-	DetoursAPI()->UnpauseDetour( hCVoiceStatus__SetPlayerBlockedState );
-	DetoursAPI()->UnpauseDetour( hCVoiceStatus__UpdateServerState );
-	DetoursAPI()->UnpauseDetour( hHACK_GetPlayerUniqueID );
+	//DetoursAPI()->UnpauseDetour( m_hCHudBaseTextBlock__Print );
+	DetoursAPI()->UnpauseDetour( m_hCVoiceBanMgr__SetPlayerBan );
+	DetoursAPI()->UnpauseDetour( m_hCVoiceBanMgr__InternalFindPlayerSquelch );
+	DetoursAPI()->UnpauseDetour( m_hCVoiceStatus__IsPlayerBlocked );
+	DetoursAPI()->UnpauseDetour( m_hCVoiceStatus__SetPlayerBlockedState );
+	DetoursAPI()->UnpauseDetour( m_hCVoiceStatus__UpdateServerState );
+	DetoursAPI()->UnpauseDetour( m_hHACK_GetPlayerUniqueID );
 
-	hUserMsgHook_SayText = Hooks()->HookUserMessage( "SayText", UserMsgHook_SayText, &ORIG_UserMsgHook_SayText );
+	m_hUserMsgHook_SayText = Hooks()->HookUserMessage( "SayText", UserMsgHook_SayText, &ORIG_UserMsgHook_SayText );
 }
+
+CMuteManager g_MuteManager;
