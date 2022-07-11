@@ -163,10 +163,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="mute_manager.cpp" />
-    <ClCompile Include="mute_manager_plugin.cpp" />
+    <ClCompile Include="patterns.cpp" />
+    <ClCompile Include="plugin.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mute_manager.h" />
+    <ClInclude Include="patterns.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

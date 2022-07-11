@@ -5,7 +5,7 @@
 #include <convar.h>
 #include <dbg.h>
 
-#include "mute_manager.h"
+#include "patterns.h"
 
 //-----------------------------------------------------------------------------
 // Mute manager's plugin interface
@@ -58,6 +58,8 @@ api_version_s CMuteManagerPlugin::GetAPIVersion()
 
 bool CMuteManagerPlugin::Load(CreateInterfaceFn pfnSvenModFactory, ISvenModAPI *pSvenModAPI, IPluginHelpers *pPluginHelpers)
 {
+	Patterns::ResolvePatterns();
+
 	if ( !LoadFeatures() )
 	{
 		Warning("[Improved Mute Manager] Failed to initialize\n");
@@ -128,7 +130,7 @@ const char *CMuteManagerPlugin::GetAuthor(void)
 
 const char *CMuteManagerPlugin::GetVersion(void)
 {
-	return "2.0.2";
+	return "2.0.3";
 }
 
 const char *CMuteManagerPlugin::GetDescription(void)

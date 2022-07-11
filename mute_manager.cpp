@@ -9,24 +9,11 @@
 #include <ISvenModAPI.h>
 
 #include <client_state.h>
-#include <usermessages.h>
+#include <messagebuffer.h>
 #include <memutils/patterns.h>
 #include <data_struct/hashtable.h>
 
-//-----------------------------------------------------------------------------
-// Patterns
-//-----------------------------------------------------------------------------
-
-DEFINE_PATTERN(CHudBaseTextBlock__Print, "55 8B EC 6A FF 68 ? ? ? ? 64 A1 00 00 00 00 50 53 56 57 A1 ? ? ? ? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 8B D9 8B 0D");
-
-DEFINE_PATTERN(CVoiceBanMgr__SetPlayerBan, "56 FF 74 24 08 8B F1 E8 ? ? ? ? 80 7C 24 0C 00 74 13 85 C0 75 32 FF 74 24 08 8B CE E8");
-DEFINE_PATTERN(CVoiceBanMgr__InternalFindPlayerSquelch, "53 55 8B 6C 24 0C 56 57 0F 10 4D 00 0F 28 C1 66 0F 73 D8 08 66 0F FC C8 0F 10 C1 66 0F 73 D8 04");
-
-DEFINE_PATTERN(CVoiceStatus__IsPlayerBlocked, "83 EC 14 A1 ? ? ? ? 33 C4 89 44 24 10 56 8D 44 24 04 8B F1 50 FF 74 24 20 FF 15");
-DEFINE_PATTERN(CVoiceStatus__SetPlayerBlockedState, "81 EC ? ? 00 00 A1 ? ? ? ? 33 C4 89 84 24 ? ? 00 00 53 68 ? ? ? ? 8B D9 FF 15 ? ? ? ? D9 5C 24 08");
-DEFINE_PATTERN(CVoiceStatus__UpdateServerState, "81 EC ? ? 00 00 A1 ? ? ? ? 33 C4 89 84 24 ? ? 00 00 53 8B D9 89 5C 24 08");
-
-DEFINE_PATTERN(HACK_GetPlayerUniqueID, "FF 74 24 08 FF 74 24 08 FF 15 ? ? ? ? 83 C4 08 85 C0 0F 95 C0 C3");
+#include "patterns.h"
 
 //-----------------------------------------------------------------------------
 // Declare hooks
@@ -74,6 +61,7 @@ cvar_t *voice_modenable = NULL;
 ConVar imm_mute_all_communications("imm_mute_all_communications", "0", FCVAR_CLIENTDLL, "If you muted a player, all (voice and chat) communications of this player will be muted");
 ConVar imm_autosave_to_file("imm_autosave_to_file", "1", FCVAR_CLIENTDLL, "Automatically save muted players to the file \"muted_players.bin\"");
 
+CMessageBuffer SayTextBuffer;
 UserMsgHookFn ORIG_UserMsgHook_SayText = NULL;
 
 //-----------------------------------------------------------------------------
@@ -669,10 +657,11 @@ DECLARE_FUNC(bool, __cdecl, HOOKED_HACK_GetPlayerUniqueID, int nPlayerIndex, cha
 
 int UserMsgHook_SayText(const char *pszName, int iSize, void *pBuffer)
 {
-	UserMessages::BeginRead(pBuffer, iSize);
+	SayTextBuffer.Init(pBuffer, iSize, true);
+	SayTextBuffer.BeginReading();
 
 	int result = 0;
-	int nPlayerIndex = UserMessages::ReadByte();
+	int nPlayerIndex = SayTextBuffer.ReadByte();
 
 	uint64 steamid = PlayerUtils()->GetSteamID(nPlayerIndex);
 
@@ -754,7 +743,7 @@ bool CMuteManager::Load()
 	}
 	*/
 
-	m_pfnCVoiceBanMgr__SetPlayerBan = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceBanMgr__SetPlayerBan );
+	m_pfnCVoiceBanMgr__SetPlayerBan = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, Patterns::Client::CVoiceBanMgr__SetPlayerBan );
 
 	if ( !m_pfnCVoiceBanMgr__SetPlayerBan )
 	{
@@ -762,7 +751,7 @@ bool CMuteManager::Load()
 		return false;
 	}
 
-	m_pfnCVoiceBanMgr__InternalFindPlayerSquelch = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceBanMgr__InternalFindPlayerSquelch );
+	m_pfnCVoiceBanMgr__InternalFindPlayerSquelch = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, Patterns::Client::CVoiceBanMgr__InternalFindPlayerSquelch );
 
 	if ( !m_pfnCVoiceBanMgr__InternalFindPlayerSquelch )
 	{
@@ -770,7 +759,7 @@ bool CMuteManager::Load()
 		return false;
 	}
 
-	m_pfnCVoiceStatus__IsPlayerBlocked = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceStatus__IsPlayerBlocked );
+	m_pfnCVoiceStatus__IsPlayerBlocked = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, Patterns::Client::CVoiceStatus__IsPlayerBlocked );
 
 	if ( !m_pfnCVoiceStatus__IsPlayerBlocked )
 	{
@@ -778,7 +767,7 @@ bool CMuteManager::Load()
 		return false;
 	}
 
-	m_pfnCVoiceStatus__SetPlayerBlockedState = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceStatus__SetPlayerBlockedState );
+	m_pfnCVoiceStatus__SetPlayerBlockedState = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, Patterns::Client::CVoiceStatus__SetPlayerBlockedState );
 
 	if ( !m_pfnCVoiceStatus__SetPlayerBlockedState )
 	{
@@ -786,7 +775,7 @@ bool CMuteManager::Load()
 		return false;
 	}
 
-	m_pfnCVoiceStatus__UpdateServerState = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, CVoiceStatus__UpdateServerState );
+	m_pfnCVoiceStatus__UpdateServerState = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, Patterns::Client::CVoiceStatus__UpdateServerState );
 
 	if ( !m_pfnCVoiceStatus__UpdateServerState )
 	{
@@ -794,7 +783,7 @@ bool CMuteManager::Load()
 		return false;
 	}
 
-	m_pfnHACK_GetPlayerUniqueID = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, HACK_GetPlayerUniqueID );
+	m_pfnHACK_GetPlayerUniqueID = MemoryUtils()->FindPattern( SvenModAPI()->Modules()->Client, Patterns::Client::HACK_GetPlayerUniqueID );
 
 	if ( !m_pfnHACK_GetPlayerUniqueID )
 	{

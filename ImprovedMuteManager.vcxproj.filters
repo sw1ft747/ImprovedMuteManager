@@ -11,15 +11,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="mute_manager_plugin.cpp">
+    <ClCompile Include="plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mute_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="patterns.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mute_manager.h">
+    <ClInclude Include="patterns.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
