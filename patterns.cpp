@@ -36,7 +36,7 @@ namespace Patterns
 
 		switch ( pClientVersion->version )
 		{
-		case 5025:
+		case 525:
 			Client::CHudBaseTextBlock__Print = Client::CHudBaseTextBlock__Print_v525;
 			Client::CVoiceBanMgr__SetPlayerBan = Client::CVoiceBanMgr__SetPlayerBan_v525;
 			Client::CVoiceBanMgr__InternalFindPlayerSquelch = Client::CVoiceBanMgr__InternalFindPlayerSquelch_v525;
@@ -47,7 +47,7 @@ namespace Patterns
 			break;
 
 		default:
-			Warning("[Improved Mute Manager] No signatures for the version of client \"%s\". Going to try use signatures for latest version \"5.25\"\n", pClientVersion->string);
+			Warning("[Improved Mute Manager] There're no signatures for the version of client \"%s\". Going to try use signatures for the latest version \"5.25\"\n", pClientVersion->string);
 
 			Client::CHudBaseTextBlock__Print = Client::CHudBaseTextBlock__Print_v525;
 			Client::CVoiceBanMgr__SetPlayerBan = Client::CVoiceBanMgr__SetPlayerBan_v525;

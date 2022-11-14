@@ -26,11 +26,19 @@ public:
 
 	virtual void Unpause(void);
 
+	virtual void OnFirstClientdataReceived(client_data_t *pcldata, float flTime);
+
+	virtual void OnBeginLoading(void);
+
+	virtual void OnEndLoading(void);
+
+	virtual void OnDisconnect(void);
+
 	virtual void GameFrame(client_state_t state, double frametime, bool bPostRunCmd);
 
-	virtual PLUGIN_RESULT Draw(void);
+	virtual void Draw(void);
 
-	virtual PLUGIN_RESULT DrawHUD(float time, int intermission);
+	virtual void DrawHUD(float time, int intermission);
 
 	virtual const char *GetName(void);
 
@@ -98,6 +106,22 @@ void CMuteManagerPlugin::Unpause(void)
 	UnpauseFeatures();
 }
 
+void CMuteManagerPlugin::OnFirstClientdataReceived(client_data_t *pcldata, float flTime)
+{
+}
+
+void CMuteManagerPlugin::OnBeginLoading(void)
+{
+}
+
+void CMuteManagerPlugin::OnEndLoading(void)
+{
+}
+
+void CMuteManagerPlugin::OnDisconnect(void)
+{
+}
+
 void CMuteManagerPlugin::GameFrame(client_state_t state, double frametime, bool bPostRunCmd)
 {
 	if (bPostRunCmd)
@@ -108,14 +132,12 @@ void CMuteManagerPlugin::GameFrame(client_state_t state, double frametime, bool 
 	}
 }
 
-PLUGIN_RESULT CMuteManagerPlugin::Draw(void)
+void CMuteManagerPlugin::Draw(void)
 {
-	return PLUGIN_CONTINUE;
 }
 
-PLUGIN_RESULT CMuteManagerPlugin::DrawHUD(float time, int intermission)
+void CMuteManagerPlugin::DrawHUD(float time, int intermission)
 {
-	return PLUGIN_CONTINUE;
 }
 
 const char *CMuteManagerPlugin::GetName(void)
