@@ -25,5 +25,11 @@
     <ClInclude Include="patterns.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="public\IMuteManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mute_manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

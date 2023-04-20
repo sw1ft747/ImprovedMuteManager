@@ -167,7 +167,9 @@
     <ClCompile Include="plugin.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="mute_manager.h" />
     <ClInclude Include="patterns.h" />
+    <ClInclude Include="public\IMuteManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -11,19 +11,17 @@ namespace Patterns
 {
 	namespace Client
 	{
-		EXTERN_PATTERN(CHudBaseTextBlock__Print);
+		EXTERN_PATTERNS(CHudBaseTextBlock__Print);
 
-		EXTERN_PATTERN(CVoiceBanMgr__SetPlayerBan);
-		EXTERN_PATTERN(CVoiceBanMgr__InternalFindPlayerSquelch);
+		EXTERN_PATTERNS(CVoiceBanMgr__SetPlayerBan);
+		EXTERN_PATTERNS(CVoiceBanMgr__InternalFindPlayerSquelch);
 
-		EXTERN_PATTERN(CVoiceStatus__IsPlayerBlocked);
-		EXTERN_PATTERN(CVoiceStatus__SetPlayerBlockedState);
-		EXTERN_PATTERN(CVoiceStatus__UpdateServerState);
+		EXTERN_PATTERNS(CVoiceStatus__IsPlayerBlocked);
+		EXTERN_PATTERNS(CVoiceStatus__SetPlayerBlockedState);
+		EXTERN_PATTERNS(CVoiceStatus__UpdateServerState);
 
-		EXTERN_PATTERN(HACK_GetPlayerUniqueID);
+		EXTERN_PATTERNS(HACK_GetPlayerUniqueID);
 	}
-
-	void ResolvePatterns( void );
 }
 
 #endif
